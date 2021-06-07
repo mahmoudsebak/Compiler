@@ -3,6 +3,7 @@
 #include "constants.h"
 #include <queue>
 #include <vector>
+#include <stack>
 
 using namespace std;
 
@@ -10,6 +11,8 @@ class SymbolTableTree {
 	SymbolTable* root;
 	SymbolTable* current;
 	int id;
+	stack<char> paramerters;
+	stack<int> ptype;
 
 	void dfs_unusedVariables(SymbolTable* cur) {
 		cur->reportUnusedVariables();
@@ -38,6 +41,18 @@ public:
 			table->par = current;
 			current = table;
 		}
+
+		while(!paramerters.empty()) {
+			insert(paramerters.top(), KIND_PAR, ptype.top(), NO_MOD);
+			markInitialized(paramerters.top());
+			paramerters.pop();
+			ptype.pop();
+		}
+	}
+
+	void pushParameter(char id, int type) {
+		paramerters.push(id);
+		ptype.push(type);
 	}
 
 	bool insert(char id, int kind, int type, int modifier) {

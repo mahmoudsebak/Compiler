@@ -2,10 +2,65 @@
 #include "y.tab.h"
 #include "constants.h"
 #include <stack>
+#include <string>
+using namespace std;
 static int lbl;
 static int switchLbl;
 stack<char> lastSwitchId;
 stack<int> lastSwitchLbl;
+
+string mp[4] = {"int", "double", "char", "bool"};
+
+int convert_type(int t1, int t2, string& type, string& conv) {
+    int who = 0;
+    if (t1 == t2) {
+        switch(t1) {
+            case TYPE_INT: type = "<int>"; break;
+            case TYPE_CHAR: type = "<char>"; break;
+            case TYPE_BOOL: type = "<bool>"; break;
+            default: type = "<double>"; break;
+        }
+        conv = "";
+    } else if (t1 == TYPE_DOUBLE || t2 == TYPE_DOUBLE) {
+        type = "<double>";
+        if (t1 != TYPE_DOUBLE) {
+            who = 1;
+            conv = mp[t1] + "_to_double";
+        } else {
+            who = 2;
+            conv = mp[t2] + "_to_double";
+        }
+    } else if (t1 == TYPE_INT || t2 == TYPE_INT) {
+        type = "<int>";
+        if (t1 != TYPE_INT) {
+            conv = mp[t1] + "_to_int";
+            who = 1;
+        } else {
+            who = 2;
+            conv = mp[t2] + "_to_int";
+        }
+    } else if (t1 == TYPE_CHAR || t2 == TYPE_CHAR) {
+        type = "<char>";
+        if (t1 != TYPE_CHAR) {
+            who = 1;
+            conv = mp[t1] + "_to_char";
+        } else {
+            who = 2;
+            conv = mp[t2] + "_to_char";
+        }
+    } 
+
+    return who;
+}
+
+bool check_op(int op) {
+    return op == '+' || op == '-' || op == '*' ||
+        op == '/' || op == '%' || op == '>' ||
+        op == '<' || op == GE || op == LE ||
+        op == EQ || op == NE || op == OR || op == AND;
+}
+
+
 
 int ex(nodeType *p) {
     int lbl1, lbl2;
@@ -125,8 +180,11 @@ int ex(nodeType *p) {
                         printf("L%03d:\n", lbl1);
                     }
                     break;
-                case '=':       
+                case '=':
                     ex(p->opNode.operands[1]);
+                    if (p->opNode.operands[1] && p->opNode.operands[0]->expr_type !=  p->opNode.operands[1]->expr_type) {
+                        printf("\t%s_to_%s\n", mp[p->opNode.operands[1]->expr_type].c_str(), mp[p->opNode.operands[0]->expr_type].c_str());
+                    }
                     printf("\tpop\t%c\n", p->opNode.operands[0]->idNode.id);
                     break;
                 case 'f':
@@ -149,24 +207,50 @@ int ex(nodeType *p) {
                     printf("\tRET\n");
                     break;
                 default:
-                    ex(p->opNode.operands[0]);
-                    ex(p->opNode.operands[1]);
+                    int t1, t2, who;
+                    string type, conv;
+                    if (p->opNode.op == ';') {
+                        ex(p->opNode.operands[0]);
+                        ex(p->opNode.operands[1]);
+                    } else {
+                        t1 = p->opNode.operands[0]->expr_type;
+                        t2 = p->opNode.operands[1]->expr_type;
+                        who = convert_type(t1, t2, type, conv);
+                        ex(p->opNode.operands[0]);
+                        if (who == 1 && check_op(p->opNode.op)) {
+                            printf("\t%s\n", conv.c_str());
+                        } else if ((p->opNode.op == AND || p->opNode.op == OR) && t1 != TYPE_BOOL) {
+                            type = "<bool>";
+                            conv = mp[t1] + "_to_bool";
+                            printf("\t%s\n", conv.c_str());
+                        }
+                        ex(p->opNode.operands[1]);
+                        if (who == 2 && check_op(p->opNode.op)) {
+                            printf("\t%s\n", conv.c_str());
+                        } else if ((p->opNode.op == AND || p->opNode.op == OR) && t2 != TYPE_BOOL) {
+                            type = "<bool>";
+                            conv = mp[t2] + "_to_bool";
+                            printf("\t%s\n", conv.c_str());
+                        }
+                    }
+
                     switch(p->opNode.op) {
-                        case '+':   printf("\tadd\n"); break;
-                        case '-':   printf("\tsub\n"); break; 
-                        case '*':   printf("\tmul\n"); break;
-                        case '/':   printf("\tdiv\n"); break;
-                        case '%':   printf("\tmod\n"); break;
-                        case '<':   printf("\tcompLT\n"); break;
-                        case '>':   printf("\tcompGT\n"); break;
-                        case GE:    printf("\tcompGE\n"); break;
-                        case LE:    printf("\tcompLE\n"); break;
-                        case NE:    printf("\tcompNE\n"); break;
-                        case EQ:    printf("\tcompEQ\n"); break;
-                        case OR:    printf("\tor\n"); break;
-                        case AND:    printf("\tand\n"); break;
+                        case '+':   printf("\tadd%s\n", type.c_str()); break;
+                        case '-':   printf("\tsub%s\n", type.c_str()); break; 
+                        case '*':   printf("\tmul%s\n", type.c_str()); break;
+                        case '/':   printf("\tdiv%s\n", type.c_str()); break;
+                        case '%':   printf("\tmod%s\n", type.c_str()); break;
+                        case '<':   printf("\tcompLT%s\n", type.c_str()); break;
+                        case '>':   printf("\tcompGT%s\n", type.c_str()); break;
+                        case GE:    printf("\tcompGE%s\n", type.c_str()); break;
+                        case LE:    printf("\tcompLE%s\n", type.c_str()); break;
+                        case NE:    printf("\tcompNE%s\n", type.c_str()); break;
+                        case EQ:    printf("\tcompEQ%s\n", type.c_str()); break;
+                        case OR:    printf("\tor%s\n", type.c_str()); break;
+                        case AND:   printf("\tand%s\n", type.c_str()); break;
                     }
             }
     }
     return 0;
 }
+
