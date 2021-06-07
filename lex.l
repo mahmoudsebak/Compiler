@@ -1,14 +1,38 @@
 %{
     #include "y.tab.h"
     #include <stdlib.h>
+    #include <stdio.h>
+    #include <string.h>
+    #include "node.h"
     void yyerror(char *);
 %}
 
 %%
-[0-9]+        					return INTEGER;
-(0|([1-9][0-9]*))(\.[0-9]+)? 	return DOUBLE_VALUE; 
-\'.\'								return CHARACTER;
-true|false							return BOOLEAN;
+[0-9]+        					{ 
+                                    yylval.iValue = atoi(yytext);
+                                    return INTEGER;
+                                }
+
+(0|([1-9][0-9]*))(\.[0-9]+)? 	{
+                                    char* p;
+                                    yylval.dValue = double(strtod(yytext, &p));
+                                    return DOUBLE_VALUE;
+                                } 
+
+\'.\'							{	
+                                    yylval.cValue = char(*(yytext+1));
+                                    return CHARACTER;
+                                }
+
+true|false						{	
+                                    if (strcmp(yytext, "true") == 0) {
+                                        yylval.bValue = true;
+                                    } else {
+                                        yylval.bValue = false;
+                                    }
+
+                                    return BOOLEAN;
+                                }
 
 [-+()=/*,:;<>{}\n]     { return *yytext; }
 
@@ -39,7 +63,10 @@ true|false							return BOOLEAN;
 "void"			return VOID;
 "return"		return RETURN;
 
-[_a-zA-Z][_a-zA-Z0-9]{0,30}		return IDENTIFIER;
+[_a-zA-Z]		{
+                    yylval.cValue = *yytext;
+                    return IDENTIFIER;
+                }
 
 [ \s\t]+   ;       /* skip whitespace */
 

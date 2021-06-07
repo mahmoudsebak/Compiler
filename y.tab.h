@@ -39,26 +39,26 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     IDENTIFIER = 258,
-     IF = 259,
-     ELSE = 260,
-     WHILE = 261,
-     DO = 262,
-     FOR = 263,
-     SWITCH = 264,
-     CASE = 265,
-     BREAK = 266,
-     DEFAULT = 267,
-     RETURN = 268,
-     VOID = 269,
-     INTEGER = 270,
-     CHARACTER = 271,
-     DOUBLE_VALUE = 272,
-     INT = 273,
-     CHAR = 274,
-     BOOL = 275,
-     DOUBLE = 276,
-     BOOLEAN = 277,
+     INTEGER = 258,
+     CHARACTER = 259,
+     IDENTIFIER = 260,
+     DOUBLE_VALUE = 261,
+     BOOLEAN = 262,
+     IF = 263,
+     ELSE = 264,
+     WHILE = 265,
+     DO = 266,
+     FOR = 267,
+     SWITCH = 268,
+     CASE = 269,
+     BREAK = 270,
+     DEFAULT = 271,
+     RETURN = 272,
+     VOID = 273,
+     INT = 274,
+     CHAR = 275,
+     BOOL = 276,
+     DOUBLE = 277,
      CONST = 278,
      OR = 279,
      AND = 280,
@@ -70,26 +70,26 @@
    };
 #endif
 /* Tokens.  */
-#define IDENTIFIER 258
-#define IF 259
-#define ELSE 260
-#define WHILE 261
-#define DO 262
-#define FOR 263
-#define SWITCH 264
-#define CASE 265
-#define BREAK 266
-#define DEFAULT 267
-#define RETURN 268
-#define VOID 269
-#define INTEGER 270
-#define CHARACTER 271
-#define DOUBLE_VALUE 272
-#define INT 273
-#define CHAR 274
-#define BOOL 275
-#define DOUBLE 276
-#define BOOLEAN 277
+#define INTEGER 258
+#define CHARACTER 259
+#define IDENTIFIER 260
+#define DOUBLE_VALUE 261
+#define BOOLEAN 262
+#define IF 263
+#define ELSE 264
+#define WHILE 265
+#define DO 266
+#define FOR 267
+#define SWITCH 268
+#define CASE 269
+#define BREAK 270
+#define DEFAULT 271
+#define RETURN 272
+#define VOID 273
+#define INT 274
+#define CHAR 275
+#define BOOL 276
+#define DOUBLE 277
 #define CONST 278
 #define OR 279
 #define AND 280
@@ -103,7 +103,23 @@
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE
+{
+
+/* Line 1676 of yacc.c  */
+#line 31 "grammar.y"
+
+    int iValue;
+	double dValue;
+    char cValue;
+	bool bValue;
+	struct nodeType* node_type;
+
+
+
+/* Line 1676 of yacc.c  */
+#line 122 "y.tab.h"
+} YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
