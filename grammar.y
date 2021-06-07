@@ -44,8 +44,8 @@ bool isType(int t1, int t2, int type);
 %token INT CHAR BOOL DOUBLE CONST OR AND NOT
 
 %type <iValue> data_type 
-%type <node_type> expr stmt stmt_list opt_expr for_statement case_stmt 
-%type <node_type> case_list paramter_list default_stmt function_stmt paramter
+%type <node_type> expr stmt stmt_list opt_expr for_statement case_stmt
+%type <node_type> case_list paramter_list default_stmt function_stmt paramter identifier_list
 %left GE LE EQ NE '>' '<'
 %left '+' '-'
 %left '*' '/'
@@ -173,7 +173,7 @@ expr:
 		| expr EQ expr										{ $$ = opNode(EQ, 2, $1, $3); }
 		| expr NE expr										{ $$ = opNode(NE, 2, $1, $3); }
         | '(' expr ')'            							{ $$ = $2; }
-		| IDENTIFIER '(' identifier_list ')' 				{ printf("Function Call\n"); } 
+		| IDENTIFIER '(' identifier_list ')' 				{ $$ = opNode('c', 2, idNode($1), $3);} 
         ;
 		
 opt_expr:
@@ -222,19 +222,19 @@ function_stmt:
 
 paramter:
 		data_type IDENTIFIER														{
-																						$$ = opNode('p', 1, idNode($2));
+																						$$ = opNode('=', 1, idNode($2));
 																					}
 		;
 
 paramter_list:
 		paramter																	{ $$ = opNode(',', 1, $1); }
-		| paramter_list ',' paramter												{ $$ = opNode(',', 2, $1, $3);}
-		|																			{$$ = opNode('e', 0);}
+		| paramter_list ',' paramter												{ $$ = opNode(',', 2, $1, $3); }
+		|																			{ $$ = opNode('e', 0); }
 		;	
 
 identifier_list:
-		expr
-		| identifier_list ',' expr
+		expr																		{ $$ = $1; }
+		| identifier_list ',' expr													{ $$ = opNode(',', 2, $1, $3);}
 		|
 		;	
 %%
@@ -337,7 +337,7 @@ nodeType *opNode(int op, int nops, ...) {
 
 	if (nops == 2 && op != ';' && op != IF && op != WHILE &&
 	    op != DO && op != FOR && op != SWITCH && op != CASE && op != DEFAULT &&
-		op != 'f' && op != 'p' && op != ',') {
+		op != 'f' && op != 'p' && op != ',' && op != 'c') {
 		if (!validTypes(op, operands[0], operands[1]) && 
 			operands[0]->expr_type != -1 && operands[1]->expr_type != -1) {
 			printf("Type mismatch!\n");

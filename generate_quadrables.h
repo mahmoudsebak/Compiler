@@ -130,18 +130,18 @@ int ex(nodeType *p) {
                     printf("\tpop\t%c\n", p->opNode.operands[0]->idNode.id);
                     break;
                 case 'f':
-                    printf("proc %c ", p->opNode.operands[0]->idNode.id);
+                    printf("proc %c \n", p->opNode.operands[0]->idNode.id);
                     ex(p->opNode.operands[1]);
-                    puts("");
                     ex(p->opNode.operands[2]);
                     printf("endProc\n");
+                    break;
+                case 'c':
+                    ex(p->opNode.operands[1]);
+                    printf("CALL %c\n", p->opNode.operands[0]->idNode.id);
                     break;
                 case ',':
                     ex(p->opNode.operands[0]);
                     ex(p->opNode.operands[1]);
-                    break;
-                case 'p':
-                    printf("%c ", p->opNode.operands[0]->idNode.id);
                     break;
                 case 'e': break;
                 case RETURN:
