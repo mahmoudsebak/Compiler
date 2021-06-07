@@ -23,8 +23,10 @@ struct nodeType* idNode(char id);
 nodeType *opNode(int op, int nops, ...);
 void lookup(char id);
 void isInitialized(char id);
-bool validTypes(int op, nodeType* op1, nodeType* op2);
-bool isType(int t1, int t2, int type);
+bool invalidTypes(int op, nodeType* op1, nodeType* op2);
+bool type_op(int op);
+int expr_out(int op, int t1, int t2);
+static int error;
 
 %}
 
@@ -55,8 +57,10 @@ bool isType(int t1, int t2, int type);
 program:
         program stmt '\n'												{ 
 																			symbolTable->unusedVariables(); 
-																			printf("\n\n\n************** Quadruples **************\n\n\n");
-																			ex($2);
+																			if (!error) {
+																				printf("\n\n\n************** Quadruples **************\n\n\n");
+																				ex($2);
+																			}
 																			printf("\n\n\n************** Symbol Tables **************\n\n\n");
 																			symbolTable->print();
 																		 }
@@ -85,7 +89,7 @@ stmt:
 																			$$ = opNode('=', 2, idNode($1), $3);
 		 																} 
 		| data_type IDENTIFIER ';'										{	 
-																			$$ = opNode('r', 0);
+																			$$ = opNode('e', 0);
 																			insert($2, KIND_VAR, $1, NO_MOD);
 																		}
 		| CONST data_type IDENTIFIER '=' expr ';'						{
@@ -105,21 +109,9 @@ stmt:
 																								symbolTable->markUsed($3);
 																								$$ = opNode(SWITCH, 3, idNode($3), $6, $7);
 																							}
-		| RETURN IDENTIFIER ';'											{
-																			lookup($2); 
-																			isInitialized($2);
-																			symbolTable->markUsed($2);
-																			$$ = opNode(RETURN, 1, idNode($2));
-																		}
 		| RETURN opt_expr ';'											{
 																			$$ = opNode(RETURN, 1, $2); 
 																		}
-		| RETURN INTEGER ';'											{ 
-																			$$ = opNode(RETURN, 1, intNode($2));
-																		}
-		| RETURN CHARACTER ';'											{ $$ = opNode(RETURN, 1, charNode($2)); }
-		| RETURN DOUBLE_VALUE ';'										{ $$ = opNode(RETURN, 1, doubleNode($2)); }
-		| RETURN BOOLEAN ';'											{ $$ = opNode(RETURN, 1, boolNode($2)); }
 		| function_stmt													{ $$ = $1; }
 		| stmt stmt														{ $$ = opNode(';', 2, $1, $2); }
 		| ';'															{ $$ = opNode(';', 0); }
@@ -222,6 +214,7 @@ function_stmt:
 
 paramter:
 		data_type IDENTIFIER														{
+																						symbolTable->pushParameter($2, $1);
 																						$$ = opNode('=', 1, idNode($2));
 																					}
 		;
@@ -249,6 +242,7 @@ void insert(char id, int kind, int type, int modifier) {
 	bool res = symbolTable->insert(id, kind, type, modifier);
 	if (!res) {
 		printf("Declaration conflict!, Variable %c declared before.\n", id);
+		error = 1;
 	}
 }
 
@@ -256,6 +250,7 @@ void lookup(char id) {
 	bool res = symbolTable->lookup(id);
 	if (!res) {
 		printf("Variable %c used before being declared!\n", id);
+		error = 1;
 	}
 }
 
@@ -263,10 +258,12 @@ void isInitialized(char id) {
 	bool res = symbolTable->lookup(id);
 	if (!res) {
 		printf("Variable %c used before being declared!\n", id);
+		error = 1;
 	} else {
 		res = symbolTable->isInitialized(id);
 		if (!res) {
 			printf("Variable %c used before being initialized!\n", id);
+			error = 1;
 		}
 	}
 	
@@ -335,21 +332,24 @@ nodeType *opNode(int op, int nops, ...) {
     
 	va_end(ap);
 
-	if (nops == 2 && op != ';' && op != IF && op != WHILE &&
-	    op != DO && op != FOR && op != SWITCH && op != CASE && op != DEFAULT &&
-		op != 'f' && op != 'p' && op != ',' && op != 'c') {
-		if (!validTypes(op, operands[0], operands[1]) && 
-			operands[0]->expr_type != -1 && operands[1]->expr_type != -1) {
+	if (nops == 2 && type_op(op)) {
+		if (invalidTypes(op, operands[0], operands[1])) {
 			printf("Type mismatch!\n");
+			error = 1;
 		}
 	}
 
     nodeType* p = new nodeType();
 
     p->type = OP_NODE;
-	p->expr_type = nops > 0 ? operands[0]->expr_type : -1;
     p->opNode.op = op;
     p->opNode.nops = nops;
+
+	if(op == '=') {
+		p->expr_type = symbolTable->getType(operands[0]->idNode.id);
+	} else if (type_op(op) && nops == 2) {
+		p->expr_type = expr_out(op, operands[0]->expr_type, operands[1]->expr_type);
+	}
 
 	for (int i = 0; i < nops; i++)
         p->opNode.operands[i] = operands[i];
@@ -357,22 +357,30 @@ nodeType *opNode(int op, int nops, ...) {
     return p;
 }
 
-bool validTypes(int op, nodeType* op1, nodeType* op2) {
+bool invalidTypes(int op, nodeType* op1, nodeType* op2) {
 	int t1 = op1->expr_type;
 	int t2 = op2->expr_type;
 
-	if (op == '+' || op == '-' || op == '*' || op == '/') {
-		return isType(t1, t2, TYPE_INT) || isType(t1, t2, TYPE_DOUBLE);
-	} else if (op == '%') {
-		return isType(t1, t2, TYPE_INT);
-	} else if (op == AND || op == OR) {
-		return isType(t1, t2, TYPE_BOOL);
-	} else {
-		return isType(t1, t2, TYPE_INT) || isType(t1, t2, TYPE_DOUBLE) ||
-				isType(t1, t2, TYPE_CHAR) || isType(t1, t2, TYPE_BOOL) ;
+	if (op == '%') {
+		return t1 == TYPE_DOUBLE || t2 == TYPE_DOUBLE;
+	} else if (op == '=') {
+		return t1 == TYPE_CHAR && t2 == TYPE_DOUBLE;
 	}
+
+	return false; 
 }
 
-bool isType(int t1, int t2, int type) {
-	return t1 == type && t2 == type;
+int expr_out(int op, int t1, int t2) {
+	if (t1 == t2) return t1;
+	else if (op == OR || op == AND) return TYPE_BOOL;
+	else if (t1 == TYPE_DOUBLE || t2 == TYPE_DOUBLE) return TYPE_DOUBLE;
+	else if (t1 == TYPE_INT || t2 == TYPE_INT) return TYPE_INT;
+	else if (t1 == TYPE_CHAR || t2 == TYPE_CHAR) return TYPE_CHAR;
+	else return TYPE_BOOL;
+}
+
+bool type_op(int op) {
+	return op != ';' && op != IF && op != WHILE &&
+	    op != DO && op != FOR && op != SWITCH && op != CASE && op != DEFAULT &&
+		op != 'f' && op != 'p' && op != ',' && op != 'c' && op != 'e';
 }
