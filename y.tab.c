@@ -89,19 +89,20 @@ struct nodeType* intNode(int value);
 struct nodeType* charNode(char value);
 struct nodeType* doubleNode(double value);
 struct nodeType* boolNode(bool value);
-struct nodeType* idNode(char id);
+struct nodeType* idNode(char id, int type=-1);
 nodeType *opNode(int op, int nops, ...);
 void lookup(char id);
 void isInitialized(char id);
 bool invalidTypes(int op, nodeType* op1, nodeType* op2);
 bool type_op(int op);
 int expr_out(int op, int t1, int t2);
+bool isFunction(char id);
 static int error;
 
 
 
 /* Line 189 of yacc.c  */
-#line 105 "y.tab.c"
+#line 106 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -196,7 +197,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 33 "grammar.y"
+#line 34 "grammar.y"
 
     int iValue;
 	double dValue;
@@ -207,7 +208,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 211 "y.tab.c"
+#line 212 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -219,7 +220,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 223 "y.tab.c"
+#line 224 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -540,14 +541,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    58,    58,    67,    71,    75,    79,    80,    85,    91,
-      95,   100,   101,   102,   103,   104,   105,   106,   112,   115,
-     116,   117,   121,   127,   132,   136,   137,   138,   139,   143,
-     144,   145,   146,   147,   148,   149,   154,   155,   156,   157,
-     158,   159,   160,   161,   162,   163,   164,   165,   166,   167,
-     168,   172,   173,   177,   178,   179,   184,   185,   189,   190,
-     191,   192,   193,   194,   198,   199,   203,   208,   216,   223,
-     224,   225,   229,   230,   231
+       0,    59,    59,    68,    72,    76,    80,    81,    86,    92,
+      96,   101,   102,   103,   104,   105,   106,   107,   113,   116,
+     117,   118,   122,   128,   133,   137,   138,   139,   140,   144,
+     145,   146,   147,   148,   149,   150,   156,   157,   158,   159,
+     160,   161,   162,   163,   164,   165,   166,   167,   168,   169,
+     170,   178,   179,   183,   184,   185,   190,   191,   195,   196,
+     197,   198,   199,   200,   204,   205,   209,   214,   222,   229,
+     230,   231,   235,   236,   237
 };
 #endif
 
@@ -1650,7 +1651,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 58 "grammar.y"
+#line 59 "grammar.y"
     { 
 																			symbolTable->unusedVariables(); 
 																			if (!error) {
@@ -1662,31 +1663,38 @@ yyreduce:
 																		 }
     break;
 
+  case 3:
+
+/* Line 1455 of yacc.c  */
+#line 68 "grammar.y"
+    {}
+    break;
+
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 71 "grammar.y"
+#line 72 "grammar.y"
     { symbolTable->create(); }
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 75 "grammar.y"
+#line 76 "grammar.y"
     { symbolTable->up(); }
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 79 "grammar.y"
+#line 80 "grammar.y"
     { (yyval.node_type) = (yyvsp[(1) - (2)].node_type); }
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 80 "grammar.y"
+#line 81 "grammar.y"
     {	
 																			insert((yyvsp[(2) - (5)].cValue), KIND_VAR, (yyvsp[(1) - (5)].iValue), NO_MOD);
 																			symbolTable->markInitialized((yyvsp[(2) - (5)].cValue));
@@ -1697,7 +1705,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 85 "grammar.y"
+#line 86 "grammar.y"
     { 
 																			lookup((yyvsp[(1) - (4)].cValue));
 																			symbolTable->markUsed((yyvsp[(1) - (4)].cValue));
@@ -1709,7 +1717,7 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 91 "grammar.y"
+#line 92 "grammar.y"
     {	 
 																			(yyval.node_type) = opNode('e', 0);
 																			insert((yyvsp[(2) - (3)].cValue), KIND_VAR, (yyvsp[(1) - (3)].iValue), NO_MOD);
@@ -1719,7 +1727,7 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 95 "grammar.y"
+#line 96 "grammar.y"
     {
 																			insert((yyvsp[(3) - (6)].cValue), KIND_VAR, (yyvsp[(2) - (6)].iValue), MOD_CONST);
 																			symbolTable->markInitialized((yyvsp[(3) - (6)].cValue));
@@ -1730,49 +1738,49 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 100 "grammar.y"
+#line 101 "grammar.y"
     { (yyval.node_type) = opNode(IF, 3, (yyvsp[(3) - (11)].node_type), (yyvsp[(6) - (11)].node_type), (yyvsp[(10) - (11)].node_type)); }
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 101 "grammar.y"
+#line 102 "grammar.y"
     { (yyval.node_type) = opNode(IF, 2, (yyvsp[(3) - (7)].node_type), (yyvsp[(6) - (7)].node_type)); }
     break;
 
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 102 "grammar.y"
+#line 103 "grammar.y"
     { (yyval.node_type) = opNode(WHILE, 2, (yyvsp[(3) - (7)].node_type), (yyvsp[(6) - (7)].node_type)); }
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 103 "grammar.y"
+#line 104 "grammar.y"
     { (yyval.node_type) = opNode(DO, 2, (yyvsp[(3) - (9)].node_type), (yyvsp[(7) - (9)].node_type)); }
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 104 "grammar.y"
+#line 105 "grammar.y"
     { (yyval.node_type) = opNode(FOR, 4, (yyvsp[(3) - (11)].node_type), (yyvsp[(5) - (11)].node_type), (yyvsp[(7) - (11)].node_type), (yyvsp[(10) - (11)].node_type)); }
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 105 "grammar.y"
+#line 106 "grammar.y"
     { (yyval.node_type) = (yyvsp[(2) - (3)].node_type); }
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 106 "grammar.y"
+#line 107 "grammar.y"
     {
 																								lookup((yyvsp[(3) - (8)].cValue));
 																								isInitialized((yyvsp[(3) - (8)].cValue)); 
@@ -1784,7 +1792,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 112 "grammar.y"
+#line 113 "grammar.y"
     {
 																			(yyval.node_type) = opNode(RETURN, 1, (yyvsp[(2) - (3)].node_type)); 
 																		}
@@ -1793,28 +1801,28 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 115 "grammar.y"
+#line 116 "grammar.y"
     { (yyval.node_type) = (yyvsp[(1) - (1)].node_type); }
     break;
 
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 116 "grammar.y"
+#line 117 "grammar.y"
     { (yyval.node_type) = opNode(';', 2, (yyvsp[(1) - (2)].node_type), (yyvsp[(2) - (2)].node_type)); }
     break;
 
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 117 "grammar.y"
+#line 118 "grammar.y"
     { (yyval.node_type) = opNode(';', 0); }
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 121 "grammar.y"
+#line 122 "grammar.y"
     { 
 																			lookup((yyvsp[(1) - (3)].cValue));
 																			symbolTable->markUsed((yyvsp[(1) - (3)].cValue));
@@ -1826,7 +1834,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 127 "grammar.y"
+#line 128 "grammar.y"
     { 
 																			insert((yyvsp[(2) - (4)].cValue), KIND_VAR, (yyvsp[(1) - (4)].iValue), NO_MOD);
 																			symbolTable->markInitialized((yyvsp[(2) - (4)].cValue));
@@ -1837,86 +1845,87 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 132 "grammar.y"
+#line 133 "grammar.y"
     { (yyval.node_type) = opNode('e', 0);}
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 136 "grammar.y"
+#line 137 "grammar.y"
     { (yyval.iValue) = TYPE_INT; }
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 137 "grammar.y"
+#line 138 "grammar.y"
     { (yyval.iValue) = TYPE_CHAR; }
     break;
 
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 138 "grammar.y"
+#line 139 "grammar.y"
     { (yyval.iValue) = TYPE_DOUBLE; }
     break;
 
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 139 "grammar.y"
+#line 140 "grammar.y"
     { (yyval.iValue) = TYPE_BOOL; }
     break;
 
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 143 "grammar.y"
+#line 144 "grammar.y"
     { (yyval.node_type) = intNode((yyvsp[(1) - (1)].iValue)); }
     break;
 
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 144 "grammar.y"
+#line 145 "grammar.y"
     { (yyval.node_type) = intNode(-1*(yyvsp[(2) - (2)].iValue)); }
     break;
 
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 145 "grammar.y"
+#line 146 "grammar.y"
     { (yyval.node_type) = charNode((yyvsp[(1) - (1)].cValue)); }
     break;
 
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 146 "grammar.y"
+#line 147 "grammar.y"
     { (yyval.node_type) = boolNode((yyvsp[(1) - (1)].bValue)); }
     break;
 
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 147 "grammar.y"
+#line 148 "grammar.y"
     { (yyval.node_type) = doubleNode((yyvsp[(1) - (1)].dValue)); }
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 148 "grammar.y"
+#line 149 "grammar.y"
     { (yyval.node_type) = doubleNode(-1*(yyvsp[(2) - (2)].dValue)); }
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 149 "grammar.y"
+#line 150 "grammar.y"
     { 
 																isInitialized((yyvsp[(1) - (1)].cValue));
+																isFunction((yyvsp[(1) - (1)].cValue));
 																symbolTable->markUsed((yyvsp[(1) - (1)].cValue));
 																(yyval.node_type) = idNode((yyvsp[(1) - (1)].cValue)); 
 															}
@@ -1925,217 +1934,221 @@ yyreduce:
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 154 "grammar.y"
+#line 156 "grammar.y"
     { (yyval.node_type) = opNode('+', 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 155 "grammar.y"
+#line 157 "grammar.y"
     { (yyval.node_type) = opNode('-', 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type));  }
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 156 "grammar.y"
+#line 158 "grammar.y"
     { (yyval.node_type) = opNode('*', 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 157 "grammar.y"
+#line 159 "grammar.y"
     { (yyval.node_type) = opNode('/', 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 158 "grammar.y"
+#line 160 "grammar.y"
     { (yyval.node_type) = opNode('%', 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 159 "grammar.y"
+#line 161 "grammar.y"
     { (yyval.node_type) = opNode(AND, 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 160 "grammar.y"
+#line 162 "grammar.y"
     { (yyval.node_type) = opNode(OR, 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 161 "grammar.y"
+#line 163 "grammar.y"
     { (yyval.node_type) = opNode('>', 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 162 "grammar.y"
+#line 164 "grammar.y"
     { (yyval.node_type) = opNode('<', 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 163 "grammar.y"
+#line 165 "grammar.y"
     { (yyval.node_type) = opNode(LE, 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 164 "grammar.y"
+#line 166 "grammar.y"
     { (yyval.node_type) = opNode(GE, 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 165 "grammar.y"
+#line 167 "grammar.y"
     { (yyval.node_type) = opNode(EQ, 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 166 "grammar.y"
+#line 168 "grammar.y"
     { (yyval.node_type) = opNode(NE, 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 167 "grammar.y"
+#line 169 "grammar.y"
     { (yyval.node_type) = (yyvsp[(2) - (3)].node_type); }
     break;
 
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 168 "grammar.y"
-    { (yyval.node_type) = opNode('c', 2, idNode((yyvsp[(1) - (4)].cValue)), (yyvsp[(3) - (4)].node_type));}
+#line 170 "grammar.y"
+    { 
+																lookup((yyvsp[(1) - (4)].cValue));
+																symbolTable->markUsed((yyvsp[(1) - (4)].cValue));
+																(yyval.node_type) = opNode('c', 2, idNode((yyvsp[(1) - (4)].cValue)), (yyvsp[(3) - (4)].node_type));
+															}
     break;
 
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 172 "grammar.y"
+#line 178 "grammar.y"
     { (yyval.node_type) = (yyvsp[(1) - (1)].node_type); }
     break;
 
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 173 "grammar.y"
+#line 179 "grammar.y"
     { (yyval.node_type) = opNode('e', 0);}
     break;
 
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 177 "grammar.y"
+#line 183 "grammar.y"
     { (yyval.node_type) = (yyvsp[(1) - (1)].node_type); }
     break;
 
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 178 "grammar.y"
+#line 184 "grammar.y"
     { (yyval.node_type) = opNode(';', 2, (yyvsp[(1) - (2)].node_type), (yyvsp[(2) - (2)].node_type)); }
     break;
 
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 179 "grammar.y"
+#line 185 "grammar.y"
     { (yyval.node_type) = opNode('e', 0);}
     break;
 
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 184 "grammar.y"
+#line 190 "grammar.y"
     { (yyval.node_type) = opNode(DEFAULT, 1, (yyvsp[(3) - (3)].node_type));}
     break;
 
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 185 "grammar.y"
+#line 191 "grammar.y"
     { (yyval.node_type) = opNode('e', 0);}
     break;
 
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 189 "grammar.y"
+#line 195 "grammar.y"
     { (yyval.node_type) = opNode(CASE, 2, intNode((yyvsp[(3) - (8)].iValue)), (yyvsp[(6) - (8)].node_type));}
     break;
 
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 190 "grammar.y"
+#line 196 "grammar.y"
     { (yyval.node_type) = opNode(CASE, 2, doubleNode((yyvsp[(3) - (8)].dValue)), (yyvsp[(6) - (8)].node_type));}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 191 "grammar.y"
+#line 197 "grammar.y"
     { (yyval.node_type) = opNode(CASE, 2, charNode((yyvsp[(3) - (8)].cValue)), (yyvsp[(6) - (8)].node_type));}
     break;
 
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 192 "grammar.y"
+#line 198 "grammar.y"
     { (yyval.node_type) = opNode(CASE, 2, intNode((yyvsp[(3) - (6)].iValue)), (yyvsp[(6) - (6)].node_type));}
     break;
 
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 193 "grammar.y"
+#line 199 "grammar.y"
     { (yyval.node_type) = opNode(CASE, 2, doubleNode((yyvsp[(3) - (6)].dValue)), (yyvsp[(6) - (6)].node_type));}
     break;
 
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 194 "grammar.y"
+#line 200 "grammar.y"
     { (yyval.node_type) = opNode(CASE, 2, charNode((yyvsp[(3) - (6)].cValue)), (yyvsp[(6) - (6)].node_type));}
     break;
 
   case 64:
 
 /* Line 1455 of yacc.c  */
-#line 198 "grammar.y"
+#line 204 "grammar.y"
     {(yyval.node_type) = (yyvsp[(1) - (1)].node_type);}
     break;
 
   case 65:
 
 /* Line 1455 of yacc.c  */
-#line 199 "grammar.y"
+#line 205 "grammar.y"
     {(yyval.node_type) = opNode(';', 2, (yyvsp[(1) - (2)].node_type), (yyvsp[(2) - (2)].node_type));}
     break;
 
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 203 "grammar.y"
+#line 209 "grammar.y"
     {
 																						(yyval.node_type) = opNode('f', 3, idNode((yyvsp[(2) - (8)].cValue)), (yyvsp[(4) - (8)].node_type), (yyvsp[(7) - (8)].node_type));
 																						insert((yyvsp[(2) - (8)].cValue), KIND_FUN, TYPE_VOID, NO_MOD);
@@ -2146,7 +2159,7 @@ yyreduce:
   case 67:
 
 /* Line 1455 of yacc.c  */
-#line 208 "grammar.y"
+#line 214 "grammar.y"
     {
 																								(yyval.node_type) = opNode('f', 3, idNode((yyvsp[(2) - (8)].cValue)), (yyvsp[(4) - (8)].node_type), (yyvsp[(7) - (8)].node_type));
 																								insert((yyvsp[(2) - (8)].cValue), KIND_FUN, (yyvsp[(1) - (8)].iValue), NO_MOD);
@@ -2157,52 +2170,52 @@ yyreduce:
   case 68:
 
 /* Line 1455 of yacc.c  */
-#line 216 "grammar.y"
+#line 222 "grammar.y"
     {
 																						symbolTable->pushParameter((yyvsp[(2) - (2)].cValue), (yyvsp[(1) - (2)].iValue));
-																						(yyval.node_type) = opNode('=', 1, idNode((yyvsp[(2) - (2)].cValue)));
+																						(yyval.node_type) = opNode('=', 1, idNode((yyvsp[(2) - (2)].cValue), (yyvsp[(1) - (2)].iValue)));
 																					}
     break;
 
   case 69:
 
 /* Line 1455 of yacc.c  */
-#line 223 "grammar.y"
+#line 229 "grammar.y"
     { (yyval.node_type) = opNode(',', 1, (yyvsp[(1) - (1)].node_type)); }
     break;
 
   case 70:
 
 /* Line 1455 of yacc.c  */
-#line 224 "grammar.y"
+#line 230 "grammar.y"
     { (yyval.node_type) = opNode(',', 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type)); }
     break;
 
   case 71:
 
 /* Line 1455 of yacc.c  */
-#line 225 "grammar.y"
+#line 231 "grammar.y"
     { (yyval.node_type) = opNode('e', 0); }
     break;
 
   case 72:
 
 /* Line 1455 of yacc.c  */
-#line 229 "grammar.y"
+#line 235 "grammar.y"
     { (yyval.node_type) = (yyvsp[(1) - (1)].node_type); }
     break;
 
   case 73:
 
 /* Line 1455 of yacc.c  */
-#line 230 "grammar.y"
+#line 236 "grammar.y"
     { (yyval.node_type) = opNode(',', 2, (yyvsp[(1) - (3)].node_type), (yyvsp[(3) - (3)].node_type));}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 2206 "y.tab.c"
+#line 2219 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2414,11 +2427,12 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 233 "grammar.y"
+#line 239 "grammar.y"
 
 
 int main (void) {
-	return yyparse ( );
+	yyparse();
+	return 0;
 }
 
 void yyerror (char *s) {fprintf (stderr, "%s\n", s);} 
@@ -2498,11 +2512,11 @@ nodeType* boolNode(bool value) {
 
 
 
-nodeType *idNode(char id) {
+nodeType *idNode(char id, int type) {
     nodeType* p = new nodeType();
     p->type = ID_NODE;
 	bool exists = symbolTable->lookup(id); 
-	p->expr_type = exists ? symbolTable->getType(id) : -1;
+	p->expr_type = exists ? symbolTable->getType(id) : type;
     p->idNode.id = id;
 
     return p;
@@ -2569,4 +2583,14 @@ bool type_op(int op) {
 	    op != DO && op != FOR && op != SWITCH && op != CASE && op != DEFAULT &&
 		op != 'f' && op != 'p' && op != ',' && op != 'c' && op != 'e';
 }
+
+bool isFunction(char id) {
+	if(symbolTable->getKind(id) == KIND_FUN) {
+		printf("Type mismatch ! Cant assign a function type to variable type!\n");
+		error = 1;
+		return true;
+	}
+	return false;
+}
+
 
