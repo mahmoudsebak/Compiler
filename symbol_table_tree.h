@@ -133,6 +133,21 @@ public:
 		return type;
 	}
 
+	int getKind(char id) {
+		int type;
+		SymbolTable* cur = current;
+		while (cur != NULL) {
+			if (cur->exists[id-'a']) {
+				type = cur->symKind[id-'a'];
+				break;
+			}
+
+			cur = cur->par;
+		}
+
+		return type;
+	}
+
 	void up() {
 		// printf("Moving Up to the parent table\n");
 		current = current->par;

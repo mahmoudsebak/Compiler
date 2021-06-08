@@ -19,13 +19,14 @@ struct nodeType* intNode(int value);
 struct nodeType* charNode(char value);
 struct nodeType* doubleNode(double value);
 struct nodeType* boolNode(bool value);
-struct nodeType* idNode(char id);
+struct nodeType* idNode(char id, int type=-1);
 nodeType *opNode(int op, int nops, ...);
 void lookup(char id);
 void isInitialized(char id);
 bool invalidTypes(int op, nodeType* op1, nodeType* op2);
 bool type_op(int op);
 int expr_out(int op, int t1, int t2);
+bool isFunction(char id);
 static int error;
 
 %}
@@ -64,7 +65,7 @@ program:
 																			printf("\n\n\n************** Symbol Tables **************\n\n\n");
 																			symbolTable->print();
 																		 }
-        | /* NULL */
+        | /* NULL */													 {}
         ;
 
 open_bracket:
@@ -148,6 +149,7 @@ expr:
 		| '-' DOUBLE_VALUE									{ $$ = doubleNode(-1*$2); }
         | IDENTIFIER                      					{ 
 																isInitialized($1);
+																isFunction($1);
 																symbolTable->markUsed($1);
 																$$ = idNode($1); 
 															}
@@ -165,7 +167,11 @@ expr:
 		| expr EQ expr										{ $$ = opNode(EQ, 2, $1, $3); }
 		| expr NE expr										{ $$ = opNode(NE, 2, $1, $3); }
         | '(' expr ')'            							{ $$ = $2; }
-		| IDENTIFIER '(' identifier_list ')' 				{ $$ = opNode('c', 2, idNode($1), $3);} 
+		| IDENTIFIER '(' identifier_list ')' 				{ 
+																lookup($1);
+																symbolTable->markUsed($1);
+																$$ = opNode('c', 2, idNode($1), $3);
+															} 
         ;
 		
 opt_expr:
@@ -215,7 +221,7 @@ function_stmt:
 paramter:
 		data_type IDENTIFIER														{
 																						symbolTable->pushParameter($2, $1);
-																						$$ = opNode('=', 1, idNode($2));
+																						$$ = opNode('=', 1, idNode($2, $1));
 																					}
 		;
 
@@ -233,7 +239,8 @@ identifier_list:
 %%
 
 int main (void) {
-	return yyparse ( );
+	yyparse();
+	return 0;
 }
 
 void yyerror (char *s) {fprintf (stderr, "%s\n", s);} 
@@ -313,11 +320,11 @@ nodeType* boolNode(bool value) {
 
 
 
-nodeType *idNode(char id) {
+nodeType *idNode(char id, int type) {
     nodeType* p = new nodeType();
     p->type = ID_NODE;
 	bool exists = symbolTable->lookup(id); 
-	p->expr_type = exists ? symbolTable->getType(id) : -1;
+	p->expr_type = exists ? symbolTable->getType(id) : type;
     p->idNode.id = id;
 
     return p;
@@ -384,3 +391,13 @@ bool type_op(int op) {
 	    op != DO && op != FOR && op != SWITCH && op != CASE && op != DEFAULT &&
 		op != 'f' && op != 'p' && op != ',' && op != 'c' && op != 'e';
 }
+
+bool isFunction(char id) {
+	if(symbolTable->getKind(id) == KIND_FUN) {
+		printf("Type mismatch ! Cant assign a function type to variable type!\n");
+		error = 1;
+		return true;
+	}
+	return false;
+}
+

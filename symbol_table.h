@@ -5,6 +5,12 @@
 #include "constants.h"
 using namespace std;
 
+string type[4] = {"INT", "DOUBLE", "CHAR", "BOOL"};
+string kind[3] = {"VAR", "PAR", "FUN"};
+string mod[4] = {"CONST", "NONE"};
+string isused[2] = {"NO", "YES"};
+string isinitialized[2] = {"NO", "YES"};
+
 
 struct SymbolTable {
     int symType[26];
@@ -42,7 +48,8 @@ struct SymbolTable {
          printf("ID  TYPE  KIND  MOD  USED  INITIALIZED\n\n");
         for (int i = 0; i < 26; ++i) {
             if(exists[i]) {
-                printf("%c  %d  %d  %d  %d  %d\n\n", i+'a', symType[i], symKind[i], symMod[i], used[i], initialized[i]);
+                printf("%c    %s  %s  %s  %s     %s\n\n", i+'a', type[symType[i]].c_str(), kind[symKind[i]].c_str()
+                , mod[symMod[i]].c_str(), isused[used[i]].c_str(), isinitialized[initialized[i]].c_str());
             }
         }
     }
