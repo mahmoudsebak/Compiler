@@ -1,0 +1,18 @@
+proc s 
+	pop<int>	x
+	pop<int>	y
+	push<int>	x
+	push<int>	y
+	add<int>
+	ret
+endProc
+proc m 
+	push<int>	10
+	push<int>	20
+	call s
+	pop<int>	a
+	push<int>	a
+	push<int>	a
+	call s
+	pop<int>	a
+endProc

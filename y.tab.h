@@ -55,14 +55,14 @@
      DEFAULT = 271,
      RETURN = 272,
      VOID = 273,
-     INT = 274,
-     CHAR = 275,
-     BOOL = 276,
-     DOUBLE = 277,
-     CONST = 278,
-     OR = 279,
-     AND = 280,
-     NOT = 281,
+     EXIT = 274,
+     INT = 275,
+     CHAR = 276,
+     BOOL = 277,
+     DOUBLE = 278,
+     CONST = 279,
+     OR = 280,
+     AND = 281,
      NE = 282,
      EQ = 283,
      LE = 284,
@@ -86,14 +86,14 @@
 #define DEFAULT 271
 #define RETURN 272
 #define VOID 273
-#define INT 274
-#define CHAR 275
-#define BOOL 276
-#define DOUBLE 277
-#define CONST 278
-#define OR 279
-#define AND 280
-#define NOT 281
+#define EXIT 274
+#define INT 275
+#define CHAR 276
+#define BOOL 277
+#define DOUBLE 278
+#define CONST 279
+#define OR 280
+#define AND 281
 #define NE 282
 #define EQ 283
 #define LE 284
@@ -107,7 +107,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 34 "grammar.y"
+#line 35 "grammar.y"
 
     int iValue;
 	double dValue;

@@ -1,0 +1,50 @@
+proc m 
+	push<int>	0
+	pop<int>	i
+L000:
+	push<int>	i
+	push<int>	10
+	compLT<int>
+	jz	L001
+	push<int>	10
+	pop<int>	b
+	push<int>	i
+	push<int>	1
+	add<int>
+	pop<int>	i
+	jmp	L000
+L001:
+	push<int>	0
+	pop<int>	x
+L002:
+	push<int>	x
+	push<int>	20
+	compLT<int>
+	jz	L003
+	push<int>	x
+	push<int>	1
+	add<int>
+	pop<int>	x
+	jmp	L002
+L003:
+	push<int>	0
+	pop<int>	x
+L004:
+	push<int>	x
+	push<int>	1
+	add<int>
+	pop<int>	x
+	push<int>	x
+	push<int>	20
+	compLT<int>
+	jnz	L004
+	push<int>	x
+	push<int>	1
+	compEQ
+	jz	L005
+	push<int>	10
+	pop<int>	x
+	jmp S000
+L005:
+S000:
+endProc

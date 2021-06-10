@@ -1,1 +1,0 @@
-int a;a = 9;char c = '9';int b = a + 10 * 9;double d = 22.4;bool k = false;while(k == false) {if (b >= 10) {c = 'z';} else {c = 'h';}if (a != 9) {k = true;}}for(int i =0;i<a; i = i+2) {d = d + 1.1;}do{a = a-1;}while(a >= 0);switch(c){case('z'):d=5.4;break;case('h'):d=4.4;break;default:d=0.0;}

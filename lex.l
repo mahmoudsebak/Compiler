@@ -7,7 +7,10 @@
     void yyerror(char *);
 %}
 
+%option yylineno
+
 %%
+exit                            {return EXIT;}
 [0-9]+        					{ 
                                     yylval.iValue = atoi(yytext);
                                     return INTEGER;
@@ -34,7 +37,7 @@ true|false						{
                                     return BOOLEAN;
                                 }
 
-[-+()=/*,:;<>{}\n]     { return *yytext; }
+[-%+()=/*,:;<>{}]     { return *yytext; }
 
 ">="            return GE;
 "<="            return LE;
@@ -42,7 +45,6 @@ true|false						{
 "!="            return NE;
 "&&"			return AND;
 "||"			return OR;
-"!"				return NOT;
 
 "int"			return INT;
 "char"			return CHAR;
@@ -68,7 +70,7 @@ true|false						{
                     return IDENTIFIER;
                 }
 
-[ \s\t]+   ;       /* skip whitespace */
+[ \t\n]+   ;       /* skip whitespace */
 
 .               yyerror("Unknown character");
 

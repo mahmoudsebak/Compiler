@@ -1,0 +1,4 @@
+Symbol b used before being initialized!
+Type mismatch! assigning double to char
+Type mismatch! modulus double operations
+Symbol g used before being declared!
