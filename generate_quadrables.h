@@ -71,49 +71,49 @@ int ex(nodeType *p) {
         case CONST_NODE:
             switch(p->expr_type) {
                 case TYPE_INT:
-                    printf("\tpush<int>\t%d\n", p->conNode.ivalue);
+                    fprintf( yyout,"\tpush<int>\t%d\n", p->conNode.ivalue);
                     break;
                 case TYPE_DOUBLE:
-                    printf("\tpush<double>\t%f\n", p->conNode.dvalue);
+                    fprintf( yyout,"\tpush<double>\t%f\n", p->conNode.dvalue);
                     break;
                 case TYPE_BOOL:
-                    printf("\tpush<bool>\t%d\n", p->conNode.bvalue);
+                    fprintf( yyout,"\tpush<bool>\t%d\n", p->conNode.bvalue);
                     break;
                 default:
-                    printf("\tpush<char>\t'%c'\n", p->conNode.cvalue);
+                    fprintf( yyout,"\tpush<char>\t'%c'\n", p->conNode.cvalue);
                     break;
             } 
             break;
         case ID_NODE:        
-            printf("\tpush<%s>\t%c\n", mp[p->expr_type].c_str(), p->idNode.id); 
+            fprintf( yyout,"\tpush<%s>\t%c\n", mp[p->expr_type].c_str(), p->idNode.id); 
             break;
         case OP_NODE:
             switch(p->opNode.op) {
                 case WHILE:
-                    printf("L%03d:\n", lbl1 = lbl++);
+                    fprintf( yyout,"L%03d:\n", lbl1 = lbl++);
                     ex(p->opNode.operands[0]);
-                    printf("\tjz\tL%03d\n", lbl2 = lbl++);
+                    fprintf( yyout,"\tjz\tL%03d\n", lbl2 = lbl++);
                     ex(p->opNode.operands[1]);
-                    printf("\tjmp\tL%03d\n", lbl1);
-                    printf("L%03d:\n", lbl2);
+                    fprintf( yyout,"\tjmp\tL%03d\n", lbl1);
+                    fprintf( yyout,"L%03d:\n", lbl2);
                     break;
                 case FOR:
                     ex(p->opNode.operands[0]);
-                    printf("L%03d:\n", lbl1 = lbl++);
+                    fprintf( yyout,"L%03d:\n", lbl1 = lbl++);
                     ex(p->opNode.operands[1]);
                     if (!(p->opNode.operands[1]->type == OP_NODE && p->opNode.operands[1]->opNode.op == 'e')) {
-                        printf("\tjz\tL%03d\n", lbl2 = lbl++);
+                        fprintf( yyout,"\tjz\tL%03d\n", lbl2 = lbl++);
                     }
                     ex(p->opNode.operands[3]);
                     ex(p->opNode.operands[2]);
-                    printf("\tjmp\tL%03d\n", lbl1);
-                    printf("L%03d:\n", lbl2);
+                    fprintf( yyout,"\tjmp\tL%03d\n", lbl1);
+                    fprintf( yyout,"L%03d:\n", lbl2);
                     break;
                 case DO:
-                    printf("L%03d:\n", lbl1 = lbl++);
+                    fprintf( yyout,"L%03d:\n", lbl1 = lbl++);
                     ex(p->opNode.operands[0]);
                     ex(p->opNode.operands[1]);
-                    printf("\tjnz\tL%03d\n", lbl1);
+                    fprintf( yyout,"\tjnz\tL%03d\n", lbl1);
                     break;
                 case SWITCH:
                     lastSwitchLbl.push(switchLbl++);
@@ -121,45 +121,45 @@ int ex(nodeType *p) {
                     lastSwitchIdType.push(p->opNode.operands[0]->expr_type);
                     ex(p->opNode.operands[1]);
                     ex(p->opNode.operands[2]);
-                    printf("S%03d:\n", lastSwitchLbl.top());
+                    fprintf( yyout,"S%03d:\n", lastSwitchLbl.top());
                     lastSwitchId.pop();
                     lastSwitchLbl.pop();
                     lastSwitchIdType.pop();
                     break;
                 case CASE:
-                    printf("\tpush<%s>\t%c\n", mp[lastSwitchIdType.top()].c_str(), lastSwitchId.top());
+                    fprintf( yyout,"\tpush<%s>\t%c\n", mp[lastSwitchIdType.top()].c_str(), lastSwitchId.top());
                     switch(p->opNode.operands[0]->expr_type) {
                         case TYPE_INT:
-                            printf("\tpush<int>\t%d\n", p->opNode.operands[0]->conNode.ivalue);
-                            printf("\tcompEQ\n");
-                            printf("\tjz\tL%03d\n", lbl1 = lbl++);
+                            fprintf( yyout,"\tpush<int>\t%d\n", p->opNode.operands[0]->conNode.ivalue);
+                            fprintf( yyout,"\tcompEQ\n");
+                            fprintf( yyout,"\tjz\tL%03d\n", lbl1 = lbl++);
                             ex(p->opNode.operands[1]);
-                            printf("\tjmp S%03d\n", lastSwitchLbl.top());
-                            printf("L%03d:\n", lbl1);
+                            fprintf( yyout,"\tjmp S%03d\n", lastSwitchLbl.top());
+                            fprintf( yyout,"L%03d:\n", lbl1);
                             break;
                         case TYPE_CHAR:
-                            printf("\tpush<char>\t'%c'\n", p->opNode.operands[0]->conNode.cvalue);
-                            printf("\tcompEQ\n");
-                            printf("\tjz\tL%03d\n", lbl1 = lbl++);
+                            fprintf( yyout,"\tpush<char>\t'%c'\n", p->opNode.operands[0]->conNode.cvalue);
+                            fprintf( yyout,"\tcompEQ\n");
+                            fprintf( yyout,"\tjz\tL%03d\n", lbl1 = lbl++);
                             ex(p->opNode.operands[1]);
-                            printf("\tjmp S%03d\n", lastSwitchLbl.top());
-                            printf("L%03d:\n", lbl1);
+                            fprintf( yyout,"\tjmp S%03d\n", lastSwitchLbl.top());
+                            fprintf( yyout,"L%03d:\n", lbl1);
                             break;
                         case TYPE_DOUBLE:
-                            printf("\tpush<double>\t%f\n", p->opNode.operands[0]->conNode.dvalue);
-                            printf("\tcompEQ\n");
-                            printf("\tjz\tL%03d\n", lbl1 = lbl++);
+                            fprintf( yyout,"\tpush<double>\t%f\n", p->opNode.operands[0]->conNode.dvalue);
+                            fprintf( yyout,"\tcompEQ\n");
+                            fprintf( yyout,"\tjz\tL%03d\n", lbl1 = lbl++);
                             ex(p->opNode.operands[1]);
-                            printf("\tjmp S%03d\n", lastSwitchLbl.top());
-                            printf("L%03d:\n", lbl1);
+                            fprintf( yyout,"\tjmp S%03d\n", lastSwitchLbl.top());
+                            fprintf( yyout,"L%03d:\n", lbl1);
                             break;
                         default:
-                            printf("\tpush<bool>\t%d\n", p->opNode.operands[0]->conNode.bvalue);
-                            printf("\tcompEQ\n");
-                            printf("\tjz\tL%03d\n", lbl1 = lbl++);
+                            fprintf( yyout,"\tpush<bool>\t%d\n", p->opNode.operands[0]->conNode.bvalue);
+                            fprintf( yyout,"\tcompEQ\n");
+                            fprintf( yyout,"\tjz\tL%03d\n", lbl1 = lbl++);
                             ex(p->opNode.operands[1]);
-                            printf("\tjmp S%03d\n", lastSwitchLbl.top());
-                            printf("L%03d:\n", lbl1);
+                            fprintf( yyout,"\tjmp S%03d\n", lastSwitchLbl.top());
+                            fprintf( yyout,"L%03d:\n", lbl1);
                             break;
                     }
                     break;
@@ -170,35 +170,35 @@ int ex(nodeType *p) {
                     ex(p->opNode.operands[0]);
                     if (p->opNode.nops > 2) {
                         /* if else */
-                        printf("\tjz\tL%03d\n", lbl1 = lbl++);
+                        fprintf( yyout,"\tjz\tL%03d\n", lbl1 = lbl++);
                         ex(p->opNode.operands[1]);
-                        printf("\tjmp\tL%03d\n", lbl2 = lbl++);
-                        printf("L%03d:\n", lbl1);
+                        fprintf( yyout,"\tjmp\tL%03d\n", lbl2 = lbl++);
+                        fprintf( yyout,"L%03d:\n", lbl1);
                         ex(p->opNode.operands[2]);
-                        printf("L%03d:\n", lbl2);
+                        fprintf( yyout,"L%03d:\n", lbl2);
                     } else {
                         /* if */
-                        printf("\tjz\tL%03d\n", lbl1 = lbl++);
+                        fprintf( yyout,"\tjz\tL%03d\n", lbl1 = lbl++);
                         ex(p->opNode.operands[1]);
-                        printf("L%03d:\n", lbl1);
+                        fprintf( yyout,"L%03d:\n", lbl1);
                     }
                     break;
                 case '=':
                     ex(p->opNode.operands[1]);
                     if (p->opNode.operands[1] && p->opNode.operands[0]->expr_type !=  p->opNode.operands[1]->expr_type) {
-                        printf("\t%s_to_%s\n", mp[p->opNode.operands[1]->expr_type].c_str(), mp[p->opNode.operands[0]->expr_type].c_str());
+                        fprintf( yyout,"\t%s_to_%s\n", mp[p->opNode.operands[1]->expr_type].c_str(), mp[p->opNode.operands[0]->expr_type].c_str());
                     }
-                    printf("\tpop<%s>\t%c\n", mp[p->opNode.operands[0]->expr_type].c_str() , p->opNode.operands[0]->idNode.id);
+                    fprintf( yyout,"\tpop<%s>\t%c\n", mp[p->opNode.operands[0]->expr_type].c_str() , p->opNode.operands[0]->idNode.id);
                     break;
                 case 'f':
-                    printf("proc %c \n", p->opNode.operands[0]->idNode.id);
+                    fprintf( yyout,"proc %c \n", p->opNode.operands[0]->idNode.id);
                     ex(p->opNode.operands[1]);
                     ex(p->opNode.operands[2]);
-                    printf("endProc\n");
+                    fprintf( yyout,"endProc\n");
                     break;
                 case 'c':
                     ex(p->opNode.operands[1]);
-                    printf("\tcall %c\n", p->opNode.operands[0]->idNode.id);
+                    fprintf( yyout,"\tcall %c\n", p->opNode.operands[0]->idNode.id);
                     break;
                 case ',':
                     ex(p->opNode.operands[0]);
@@ -207,7 +207,7 @@ int ex(nodeType *p) {
                 case 'e': break;
                 case RETURN:
                     ex(p->opNode.operands[0]);
-                    printf("\tret\n");
+                    fprintf( yyout,"\tret\n");
                     break;
                 default:
                     int t1, t2, who;
@@ -221,36 +221,36 @@ int ex(nodeType *p) {
                         who = convert_type(t1, t2, type, conv);
                         ex(p->opNode.operands[0]);
                         if (who == 1 && check_op(p->opNode.op)) {
-                            printf("\t%s\n", conv.c_str());
+                            fprintf( yyout,"\t%s\n", conv.c_str());
                         } else if ((p->opNode.op == AND || p->opNode.op == OR) && t1 != TYPE_BOOL) {
                             type = "<bool>";
                             conv = mp[t1] + "_to_bool";
-                            printf("\t%s\n", conv.c_str());
+                            fprintf( yyout,"\t%s\n", conv.c_str());
                         }
                         ex(p->opNode.operands[1]);
                         if (who == 2 && check_op(p->opNode.op)) {
-                            printf("\t%s\n", conv.c_str());
+                            fprintf( yyout,"\t%s\n", conv.c_str());
                         } else if ((p->opNode.op == AND || p->opNode.op == OR) && t2 != TYPE_BOOL) {
                             type = "<bool>";
                             conv = mp[t2] + "_to_bool";
-                            printf("\t%s\n", conv.c_str());
+                            fprintf( yyout,"\t%s\n", conv.c_str());
                         }
                     }
 
                     switch(p->opNode.op) {
-                        case '+':   printf("\tadd%s\n", type.c_str()); break;
-                        case '-':   printf("\tsub%s\n", type.c_str()); break; 
-                        case '*':   printf("\tmul%s\n", type.c_str()); break;
-                        case '/':   printf("\tdiv%s\n", type.c_str()); break;
-                        case '%':   printf("\tmod%s\n", type.c_str()); break;
-                        case '<':   printf("\tcompLT%s\n", type.c_str()); break;
-                        case '>':   printf("\tcompGT%s\n", type.c_str()); break;
-                        case GE:    printf("\tcompGE%s\n", type.c_str()); break;
-                        case LE:    printf("\tcompLE%s\n", type.c_str()); break;
-                        case NE:    printf("\tcompNE%s\n", type.c_str()); break;
-                        case EQ:    printf("\tcompEQ%s\n", type.c_str()); break;
-                        case OR:    printf("\tor%s\n", type.c_str()); break;
-                        case AND:   printf("\tand%s\n", type.c_str()); break;
+                        case '+':   fprintf( yyout,"\tadd%s\n", type.c_str()); break;
+                        case '-':   fprintf( yyout,"\tsub%s\n", type.c_str()); break; 
+                        case '*':   fprintf( yyout,"\tmul%s\n", type.c_str()); break;
+                        case '/':   fprintf( yyout,"\tdiv%s\n", type.c_str()); break;
+                        case '%':   fprintf( yyout,"\tmod%s\n", type.c_str()); break;
+                        case '<':   fprintf( yyout,"\tcompLT%s\n", type.c_str()); break;
+                        case '>':   fprintf( yyout,"\tcompGT%s\n", type.c_str()); break;
+                        case GE:    fprintf( yyout,"\tcompGE%s\n", type.c_str()); break;
+                        case LE:    fprintf( yyout,"\tcompLE%s\n", type.c_str()); break;
+                        case NE:    fprintf( yyout,"\tcompNE%s\n", type.c_str()); break;
+                        case EQ:    fprintf( yyout,"\tcompEQ%s\n", type.c_str()); break;
+                        case OR:    fprintf( yyout,"\tor%s\n", type.c_str()); break;
+                        case AND:   fprintf( yyout,"\tand%s\n", type.c_str()); break;
                     }
             }
     }

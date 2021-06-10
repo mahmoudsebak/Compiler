@@ -5,6 +5,8 @@
 #include "constants.h"
 using namespace std;
 
+extern FILE *yyin, *yyout;
+
 string type[4] = {"INT", "DOUBLE", "CHAR", "BOOL"};
 string kind[3] = {"VAR", "PAR", "FUN"};
 string mod[4] = {"CONST", "NONE"};
@@ -36,19 +38,19 @@ struct SymbolTable {
     void reportUnusedVariables() {
         for (int i =0; i < 26; ++i) {
             if(exists[i] && !used[i]) {
-                printf("Variable %c declared but never used!\n", i+'a');
+                fprintf(yyout, "Symbol %c declared but never used!\n", i+'a');
             }
         }
     }
 
     void print() {
-        printf("** Symbol Table %d **\n", id);
+        fprintf(yyout, "** Symbol Table %d **\n", id);
         int parID = par != NULL ? par->id : -1;
-        printf("** Parent ID %d **\n\n", parID);
-         printf("ID  TYPE  KIND  MOD  USED  INITIALIZED\n\n");
+        fprintf(yyout, "** Parent ID %d **\n\n", parID);
+        fprintf(yyout, "ID  TYPE  KIND  MOD  USED  INITIALIZED\n\n");
         for (int i = 0; i < 26; ++i) {
             if(exists[i]) {
-                printf("%c    %s  %s  %s  %s     %s\n\n", i+'a', type[symType[i]].c_str(), kind[symKind[i]].c_str()
+                fprintf(yyout, "%c    %s  %s  %s  %s     %s\n\n", i+'a', type[symType[i]].c_str(), kind[symKind[i]].c_str()
                 , mod[symMod[i]].c_str(), isused[used[i]].c_str(), isinitialized[initialized[i]].c_str());
             }
         }

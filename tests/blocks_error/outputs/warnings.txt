@@ -1,0 +1,2 @@
+Symbol m declared but never used!
+Symbol y declared but never used!

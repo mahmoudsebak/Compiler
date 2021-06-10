@@ -1,0 +1,24 @@
+proc m 
+	push<int>	10
+	pop<int>	a
+	push<int>	a
+	int_to_double
+	push<double>	9.600000
+	add<double>
+	pop<double>	d
+	push<char>	'c'
+	char_to_int
+	push<int>	1
+	add<int>
+	int_to_char
+	pop<char>	c
+	push<double>	5.600000
+	double_to_bool
+	pop<bool>	f
+	push<char>	'c'
+	char_to_double
+	push<double>	5.600000
+	add<double>
+	double_to_int
+	pop<int>	h
+endProc

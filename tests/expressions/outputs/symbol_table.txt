@@ -1,0 +1,24 @@
+** Symbol Table 0 **
+** Parent ID -1 **
+
+ID  TYPE  KIND  MOD  USED  INITIALIZED
+
+m    VAR  FUN  NONE  NO     YES
+
+** Symbol Table 1 **
+** Parent ID 0 **
+
+ID  TYPE  KIND  MOD  USED  INITIALIZED
+
+a    BOOL  VAR  NONE  YES     YES
+
+b    BOOL  VAR  NONE  YES     YES
+
+c    BOOL  VAR  NONE  NO     YES
+
+x    INT  VAR  NONE  YES     YES
+
+y    INT  VAR  NONE  YES     YES
+
+z    INT  VAR  NONE  NO     YES
+

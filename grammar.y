@@ -11,7 +11,8 @@ int yylex();
 #include "symbol_table_tree.h"
 #include "constants.h"
 #include "generate_quadrables.h"
-
+extern int yylineno;
+extern FILE *yyin, *yyout;
 
 SymbolTableTree* symbolTable = new SymbolTableTree();
 void insert(char id, int kind, int type, int modifier);
@@ -39,12 +40,14 @@ static int error;
 	struct nodeType* node_type;
 };
 
+%error-verbose
+
 %token <iValue> INTEGER
 %token <cValue> CHARACTER IDENTIFIER
 %token <dValue> DOUBLE_VALUE
 %token <bValue> BOOLEAN  
-%token IF ELSE WHILE DO FOR SWITCH CASE  BREAK DEFAULT RETURN  VOID
-%token INT CHAR BOOL DOUBLE CONST OR AND NOT
+%token IF ELSE WHILE DO FOR SWITCH CASE  BREAK DEFAULT RETURN  VOID EXIT
+%token INT CHAR BOOL DOUBLE CONST OR AND
 
 %type <iValue> data_type 
 %type <node_type> expr stmt stmt_list opt_expr for_statement case_stmt
@@ -56,16 +59,17 @@ static int error;
 %%
 
 program:
-        program stmt '\n'												{ 
-																			symbolTable->unusedVariables(); 
+        program stmt EXIT												{ 	
+																			yyout = fopen("outputs/warnings.txt", "w");
+																			symbolTable->unusedVariables();
+																			yyout = fopen("outputs/quadruples.txt", "w"); 
 																			if (!error) {
-																				printf("\n\n\n************** Quadruples **************\n\n\n");
 																				ex($2);
 																			}
-																			printf("\n\n\n************** Symbol Tables **************\n\n\n");
+																			yyout = fopen("outputs/symbol_table.txt", "w");
 																			symbolTable->print();
-																		 }
-        | /* NULL */													 {}
+																	    }
+        | 															
         ;
 
 open_bracket:
@@ -116,6 +120,7 @@ stmt:
 		| function_stmt													{ $$ = $1; }
 		| stmt stmt														{ $$ = opNode(';', 2, $1, $2); }
 		| ';'															{ $$ = opNode(';', 0); }
+ 		| error '}'
         ;
 		
 for_statement:
@@ -187,8 +192,9 @@ stmt_list:
 		
 		
 default_stmt:
-        DEFAULT ':' stmt_list								{ $$ = opNode(DEFAULT, 1, $3);}
-		|													{ $$ = opNode('e', 0);}									
+        DEFAULT ':' stmt_list BREAK ';'								{ $$ = opNode(DEFAULT, 1, $3);}
+		| DEFAULT ':' stmt_list										{ $$ = opNode(DEFAULT, 1, $3);}
+		|															{ $$ = opNode('e', 0);}									
 		;
 
 case_stmt:
@@ -238,17 +244,14 @@ identifier_list:
 		;	
 %%
 
-int main (void) {
-	yyparse();
-	return 0;
+void yyerror(char *s) {
+ fprintf(yyout, "line %d: %s\n", yylineno, s);
 }
-
-void yyerror (char *s) {fprintf (stderr, "%s\n", s);} 
 
 void insert(char id, int kind, int type, int modifier) {
 	bool res = symbolTable->insert(id, kind, type, modifier);
 	if (!res) {
-		printf("Declaration conflict!, Variable %c declared before.\n", id);
+		fprintf(yyout, "Declaration conflict!, Symbol %c declared before.\n", id);
 		error = 1;
 	}
 }
@@ -256,7 +259,7 @@ void insert(char id, int kind, int type, int modifier) {
 void lookup(char id) {
 	bool res = symbolTable->lookup(id);
 	if (!res) {
-		printf("Variable %c used before being declared!\n", id);
+		fprintf(yyout, "Symbol %c used before being declared!\n", id);
 		error = 1;
 	}
 }
@@ -264,12 +267,12 @@ void lookup(char id) {
 void isInitialized(char id) {
 	bool res = symbolTable->lookup(id);
 	if (!res) {
-		printf("Variable %c used before being declared!\n", id);
+		fprintf(yyout, "Symbol %c used before being declared!\n", id);
 		error = 1;
 	} else {
 		res = symbolTable->isInitialized(id);
 		if (!res) {
-			printf("Variable %c used before being initialized!\n", id);
+			fprintf(yyout, "Symbol %c used before being initialized!\n", id);
 			error = 1;
 		}
 	}
@@ -341,7 +344,6 @@ nodeType *opNode(int op, int nops, ...) {
 
 	if (nops == 2 && type_op(op)) {
 		if (invalidTypes(op, operands[0], operands[1])) {
-			printf("Type mismatch!\n");
 			error = 1;
 		}
 	}
@@ -369,9 +371,17 @@ bool invalidTypes(int op, nodeType* op1, nodeType* op2) {
 	int t2 = op2->expr_type;
 
 	if (op == '%') {
-		return t1 == TYPE_DOUBLE || t2 == TYPE_DOUBLE;
+		bool f = (t1 == TYPE_DOUBLE || t2 == TYPE_DOUBLE);
+		if (f) {
+			fprintf(yyout, "Type mismatch! modulus double operations\n");
+		}
+		return f;
 	} else if (op == '=') {
-		return t1 == TYPE_CHAR && t2 == TYPE_DOUBLE;
+		bool f = ( t1 == TYPE_CHAR && t2 == TYPE_DOUBLE );
+		if (f) {
+			fprintf(yyout, "Type mismatch! assigning double to char\n");
+		}
+		return f;
 	}
 
 	return false; 
@@ -394,10 +404,17 @@ bool type_op(int op) {
 
 bool isFunction(char id) {
 	if(symbolTable->getKind(id) == KIND_FUN) {
-		printf("Type mismatch ! Cant assign a function type to variable type!\n");
+		fprintf(yyout, "Type mismatch ! Cant assign a function type to variable type!\n");
 		error = 1;
 		return true;
 	}
 	return false;
 }
 
+
+int main (int argc, char** argv) {
+	yyin = fopen(argv[1], "r");
+	yyout = fopen("outputs/errors.txt", "w");
+	yyparse();
+	return 0;
+}
