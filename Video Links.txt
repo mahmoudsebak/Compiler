@@ -1,5 +1,5 @@
 Parse tree code explanation: https://drive.google.com/file/d/15YIF1X9MbuacpPgfJT0Wxiyxb7jwn16P/view?usp=sharing
 Quadruples code explanation: https://drive.google.com/file/d/11FF0JfS5aDaebrQKjFKA645OSruKXfop/view?usp=sharing
-Symbol Table code explanation:
-Semantic analysis code explanation:
+Symbol Table code explanation: https://drive.google.com/file/d/1OF6g1F6hKcG-dnyr1S0Okw8IsF44fvTb/view?usp=sharing
+Semantic analysis code explanation: https://drive.google.com/file/d/1oMdXiEuhOkNB-5xJFKP2nws07YdTWq--/view?usp=sharing
 Test cases: https://drive.google.com/file/d/1CkVuZQKUMyhZtenAX8k3PWnsFu5nypCq/view?usp=sharing
